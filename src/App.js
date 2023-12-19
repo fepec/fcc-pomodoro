@@ -2,7 +2,8 @@ import React from 'react'
 import TimeSetter from './components/timeSetter'
 import ControlButton from './components/controlButton'
 import LengthDisplay from './components/lengthDisplay'
-import { TimesOneMobiledata } from '@mui/icons-material'
+import StatusDisplay from './components/StatusDisplay'
+import CountdownTimer from './components/countdownTimer'
 
 function App() {
     return <div className=''>
@@ -19,7 +20,10 @@ function App() {
                 <LengthDisplay />
                 <ControlButton direction="increment" />
             </TimeSetter>
-
+        </div>
+        <div className='main-display'>
+            <StatusDisplay status="break" />
+            <CountdownTimer />
         </div>
     </div>
 }
