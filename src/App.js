@@ -1,9 +1,11 @@
 import React from 'react'
 import TimeSetter from './components/timeSetter'
-import ControlButton from './components/controlButton'
+import SettingsButton from './components/settingsButton'
 import LengthDisplay from './components/lengthDisplay'
-import StatusDisplay from './components/StatusDisplay'
+import StatusDisplay from './components/statusDisplay'
 import CountdownTimer from './components/countdownTimer'
+import StartStopButton from './components/startStopButton'
+import ResetButton from './components/resetButton'
 
 function App() {
     return <div className=''>
@@ -11,19 +13,23 @@ function App() {
         <div className='timer-settings'>
 
             <TimeSetter timerType="break">
-                <ControlButton direction="decrement" />
+                <SettingsButton direction="decrement" />
                 <LengthDisplay />
-                <ControlButton direction="increment" />
+                <SettingsButton direction="increment" />
             </TimeSetter>
             <TimeSetter timerType="session">
-                <ControlButton direction="decrement" />
+                <SettingsButton direction="decrement" />
                 <LengthDisplay />
-                <ControlButton direction="increment" />
+                <SettingsButton direction="increment" />
             </TimeSetter>
         </div>
         <div className='main-display'>
             <StatusDisplay status="break" />
             <CountdownTimer />
+        </div>
+        <div className='timer-controls'>
+            <StartStopButton />
+            <ResetButton />
         </div>
     </div>
 }

@@ -11,4 +11,10 @@
 
 .time-setter {
     display: inline-flex;
+    flex-direction: column;
+}
+
+.settings-box {
+    display: flex;
+    font-size: xx-large;
 }
