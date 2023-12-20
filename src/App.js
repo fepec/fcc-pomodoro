@@ -8,6 +8,11 @@ import StartStopButton from './components/startStopButton'
 import ResetButton from './components/resetButton'
 
 function App() {
+    // state
+
+    // event handlers
+    
+
     return <div className=''>
         <h1>fepec's pomodoro timer</h1>
         <div className='timer-settings'>
