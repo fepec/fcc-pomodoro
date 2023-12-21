@@ -7,11 +7,11 @@ import CountdownTimer from './components/countdownTimer'
 
 function App() {
     // state
-
+    
     // event handlers
 
 
-    return <div className=''>
+    return <div className='pomodoro-timer'>
         <h1>fepec's pomodoro timer</h1>
         <div className='timer-settings'>
 

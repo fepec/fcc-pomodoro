@@ -5,7 +5,7 @@ export default function TimeSetter({ controlType, children }) {
     let labelId = `${controlType}-label`
 
     return <div className="time-setter">
-        <div className={labelId} id={labelId}>{labelText}</div>
+        <div className='settings-label' id={labelId}>{labelText}</div>
 
         <div className='settings-box'>
             {React.Children.map(children, child => {

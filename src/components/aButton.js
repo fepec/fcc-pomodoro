@@ -1,26 +1,23 @@
 import React from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMinus, faPlus, faPlay, faStop, faRotateLeft } from '@fortawesome/free-solid-svg-icons'
-
 
 
 export default function AButton({type, control, onButtonClick}) {    
     const buttonClass = `control-button button-${type}`
-    const buttonId = `${control ? control + '-' : ''}${type}`
-    let icon
+    const buttonId = `${control && (control === "break" || control ==="session") ? control + '-' : ''}${type}`
+    let buttonContent
 
     if (type === "increment" ) {
-        icon = faPlus
+        buttonContent = <>+</>
     } else if (type === 'decrement') {
-        icon = faMinus
+        buttonContent = <>-</>
     } else if (type === 'start-stop') {
-        icon = control === 'play' ? faPlay : faStop 
+        buttonContent = control === 'play' ?  String.fromCharCode(0x23F5) : String.fromCharCode(0x23F9)
     } else if (type === 'reset') {
-        icon = faRotateLeft
+        buttonContent = String.fromCharCode(0x000027F2)
     }
     
 
-    return <button id={buttonId}>        
-            <FontAwesomeIcon icon={icon} />
+    return <button id={buttonId} className={buttonClass}>        
+            {buttonContent}
         </button>
 }
