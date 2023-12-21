@@ -1,7 +1,7 @@
 import React from "react";
 
-export default function LengthDisplay(props) {
+export default function LengthDisplay({value}) {
     return <div className="length-display">
-        5
+        {value}
     </div>
 }

@@ -2,7 +2,7 @@ import React from 'react'
 
 
 export default function AButton({type, control, onButtonClick}) {    
-    const buttonClass = `control-button button-${type}`
+    const buttonClass = `control-button ${control}-${type}`
     const buttonId = `${control && (control === "break" || control ==="session") ? control + '-' : ''}${type}`
     let buttonContent
 
@@ -17,7 +17,7 @@ export default function AButton({type, control, onButtonClick}) {
     }
     
 
-    return <button id={buttonId} className={buttonClass}>        
+    return <button id={buttonId} className={buttonClass} onClick={onButtonClick} >        
             {buttonContent}
         </button>
 }
