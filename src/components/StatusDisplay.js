@@ -1,8 +1,8 @@
 import React from "react";
 
-export default function StatusDisplay(props) {
+export default function StatusDisplay({control}) {
     let currentStatus
-    if (props.status === "break") {
+    if (control === "break") {
         currentStatus = "Take a break"
     } else {
         currentStatus = "Go! Go! Go!"

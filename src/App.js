@@ -1,31 +1,29 @@
 import React from 'react'
 import TimeSetter from './components/timeSetter'
-import SettingsButton from './components/settingsButton'
+import AButton from './components/aButton'
 import LengthDisplay from './components/lengthDisplay'
 import StatusDisplay from './components/statusDisplay'
 import CountdownTimer from './components/countdownTimer'
-import StartStopButton from './components/startStopButton'
-import ResetButton from './components/resetButton'
 
 function App() {
     // state
 
     // event handlers
-    
+
 
     return <div className=''>
         <h1>fepec's pomodoro timer</h1>
         <div className='timer-settings'>
 
-            <TimeSetter timerType="break">
-                <SettingsButton direction="decrement" />
+            <TimeSetter controlType="break">
+                <AButton type="decrement" />
                 <LengthDisplay />
-                <SettingsButton direction="increment" />
+                <AButton type="increment" />
             </TimeSetter>
-            <TimeSetter timerType="session">
-                <SettingsButton direction="decrement" />
+            <TimeSetter controlType="session">
+                <AButton type="decrement" />
                 <LengthDisplay />
-                <SettingsButton direction="increment" />
+                <AButton type="increment" />
             </TimeSetter>
         </div>
         <div className='main-display'>
@@ -33,8 +31,8 @@ function App() {
             <CountdownTimer />
         </div>
         <div className='timer-controls'>
-            <StartStopButton />
-            <ResetButton />
+            <AButton type='start-stop' control="play" />
+            <AButton type='reset' />
         </div>
     </div>
 }
