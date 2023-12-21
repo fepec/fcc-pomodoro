@@ -10,6 +10,7 @@ function App() {
     // time for state will be stored in minutes
     let [sessionTime, setSessionTime] = useState(25)
     let [breakTime, setBreakTime] = useState(5)
+    let [timerStatus, setTimerStatus] = useState('ready')
 
     // event handlers
     function handlePlusMinusClick(e) {
@@ -49,7 +50,7 @@ function App() {
             </TimeSetter>
         </div>
         <div className='main-display'>
-            <StatusDisplay status="break" />
+            <StatusDisplay status={timerStatus} />
             <CountdownTimer />
         </div>
         <div className='timer-controls'>
