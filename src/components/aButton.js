@@ -11,7 +11,7 @@ export default function AButton({type, control, onButtonClick}) {
     } else if (type === 'decrement') {
         buttonContent = <>-</>
     } else if (type === 'start-stop') {
-        buttonContent = control === 'play' ?  String.fromCharCode(0x23F5) : String.fromCharCode(0x23F9)
+        buttonContent = control === 'start' ?  String.fromCharCode(0x23F5) : String.fromCharCode(0x23F9)
     } else if (type === 'reset') {
         buttonContent = String.fromCharCode(0x000027F2)
     }

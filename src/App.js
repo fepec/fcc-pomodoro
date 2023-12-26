@@ -5,33 +5,108 @@ import LengthDisplay from './components/lengthDisplay'
 import StatusDisplay from './components/statusDisplay'
 import CountdownTimer from './components/countdownTimer'
 
+// defaults
+const defaultSessionTime = 0.25
+const defaultBreakTime = 5
+
 function App() {
     // state
-    // time for state will be stored in minutes
-    let [sessionTime, setSessionTime] = useState(25)
-    let [breakTime, setBreakTime] = useState(5)
-    let [timerStatus, setTimerStatus] = useState('ready')
+    let [sessionMinutes, setSessionMinutes] = useState(defaultSessionTime);
+    let [breakMinutes, setBreakMinutes] = useState(defaultBreakTime);
+    let [timerStatus, setTimerStatus] = useState('ready');
+    let [isRunning, setIsRunning] = useState(false);
+    let [timeLeft, setTimeLeft] = useState(sessionMinutes * 60) // set in seconds
+    let [startStopStatus, setStartStopStatus] = useState('start');
+    let [intervalId, setIntervalId] = useState();
 
     // event handlers
     function handlePlusMinusClick(e) {
 
         if (e.target.id.includes('decrement')) {
-            if (e.target.id.includes('break') && breakTime > 0) {
-                setBreakTime(breakTime - 1)
-            } else if (e.target.id.includes('session') && sessionTime > 0) {
-                setSessionTime(sessionTime - 1)
+            if (e.target.id.includes('break') && breakMinutes > 0) {
+                setBreakMinutes(breakMinutes - 1)
+            } else if (e.target.id.includes('session') && sessionMinutes > 0) {
+                const newTime = sessionMinutes - 1
+                setSessionMinutes(newTime)
+                setTimeLeft(newTime * 60)
             }
         }
 
         if (e.target.id.includes('increment')) {
             if (e.target.id.includes('break')) {
-                setBreakTime(breakTime + 1)
+                setBreakMinutes(breakMinutes + 1)
             } else if (e.target.id.includes('session')) {
-                setSessionTime(sessionTime + 1)
+                const newTime = sessionMinutes + 1
+                setSessionMinutes(newTime)
+                setTimeLeft(newTime * 60)
             }
         }
     }
 
+    function handleStartStopClick(e) {
+        console.log(isRunning, timeLeft)
+
+        if (!isRunning) {
+            // let seconds;
+            // if (timeLeft > 0) {
+            //     seconds = timeLeft;
+            // } else {
+            //     if (timerStatus === 'break') {
+            //         seconds = breakMinutes * 60
+            //     }
+            // }
+            if(timerStatus === 'ready') {
+                setTimerStatus('session')
+            }
+            const seconds = timeLeft > 0 ? timeLeft : timerStatus == 'break' ? breakMinutes * 60 : breakSession * 60;
+            timer(seconds);
+            
+            setStartStopStatus('stop')
+            setIsRunning(true);
+        } else {
+        
+            clearInterval(intervalId);
+            
+            setStartStopStatus('start')
+            setIsRunning(false);
+        }
+    }
+
+    function handleResetClick(e) {
+        clearInterval(intervalId);
+        setBreakMinutes(defaultBreakTime);
+        setSessionMinutes(defaultSessionTime);
+        setTimerStatus('ready');
+        setTimeLeft(defaultSessionTime * 60);
+    }
+
+    // timer function
+    function timer(seconds) {
+        clearInterval(intervalId);
+        const now = Date.now();
+        const then = now + seconds * 1000;
+        
+        setIntervalId(
+            setInterval(() => {
+                setTimeLeft(Math.round((then - Date.now()) / 1000));
+                if (timeLeft < 0) {
+                    clearInterval(intervalId);
+
+                    // play sound
+                    // if session, switch to break and start there.
+                    // if (timerStatus === 'session') {
+                    //     setTimerStatus('break')
+                    //     timer(breakMinutes * 60)
+
+                    // }
+
+                    setIsRunning(false);
+                    return;
+                }
+
+            }, 1000)
+        )
+    }
 
 
     return <div className='pomodoro-timer'>
@@ -40,22 +115,22 @@ function App() {
 
             <TimeSetter controlType="break">
                 <AButton type="decrement" onButtonClick={handlePlusMinusClick} />
-                <LengthDisplay value={breakTime} />
+                <LengthDisplay value={breakMinutes} />
                 <AButton type="increment" onButtonClick={handlePlusMinusClick} />
             </TimeSetter>
             <TimeSetter controlType="session">
                 <AButton type="decrement" onButtonClick={handlePlusMinusClick} />
-                <LengthDisplay value={sessionTime}/>
+                <LengthDisplay value={sessionMinutes} />
                 <AButton type="increment" onButtonClick={handlePlusMinusClick} />
             </TimeSetter>
         </div>
         <div className='main-display'>
             <StatusDisplay status={timerStatus} />
-            <CountdownTimer />
+            <CountdownTimer timeToDisplay={timeLeft} />
         </div>
         <div className='timer-controls'>
-            <AButton type='start-stop' control="play" />
-            <AButton type='reset' />
+            <AButton type='start-stop' control={startStopStatus} onButtonClick={handleStartStopClick} />
+            <AButton type='reset' onButtonClick={handleResetClick} />
         </div>
     </div>
 }
