@@ -43,6 +43,14 @@ function App() {
         }
     }
 
+    function handleResetClick(e) {
+        clearInterval(intervalId);
+        setBreakMinutes(defaultBreakTime);
+        setSessionMinutes(defaultSessionTime);
+        setTimerStatus('ready');
+        setTimeLeft(defaultSessionTime * 60);
+    }
+
     function handleStartStopClick(e) {
         console.log(isRunning, timeLeft)
 
@@ -58,7 +66,7 @@ function App() {
             if(timerStatus === 'ready') {
                 setTimerStatus('session')
             }
-            const seconds = timeLeft > 0 ? timeLeft : timerStatus == 'break' ? breakMinutes * 60 : breakSession * 60;
+            const seconds = timeLeft > 0 ? timeLeft : timerStatus == 'break' ? breakMinutes * 60 : sessionMinutes * 60;
             timer(seconds);
             
             setStartStopStatus('stop')
@@ -72,13 +80,7 @@ function App() {
         }
     }
 
-    function handleResetClick(e) {
-        clearInterval(intervalId);
-        setBreakMinutes(defaultBreakTime);
-        setSessionMinutes(defaultSessionTime);
-        setTimerStatus('ready');
-        setTimeLeft(defaultSessionTime * 60);
-    }
+
 
     // timer function
     function timer(seconds) {
@@ -86,26 +88,30 @@ function App() {
         const now = Date.now();
         const then = now + seconds * 1000;
         
-        setIntervalId(
-            setInterval(() => {
-                setTimeLeft(Math.round((then - Date.now()) / 1000));
-                if (timeLeft < 0) {
-                    clearInterval(intervalId);
+        let remainingSeconds = seconds;
+        let currentIntervalId = setInterval(() => {
+            remainingSeconds = Math.round((then - Date.now()) / 1000)
+            setTimeLeft(remainingSeconds);
 
-                    // play sound
-                    // if session, switch to break and start there.
-                    // if (timerStatus === 'session') {
-                    //     setTimerStatus('break')
-                    //     timer(breakMinutes * 60)
+            if (remainingSeconds <= 0) {
+                clearInterval(currentIntervalId);
 
-                    // }
+                // play sound
+                // if session, switch to break and start there.
+                // if (timerStatus === 'session') {
+                //     setTimerStatus('break')
+                //     timer(breakMinutes * 60)
 
-                    setIsRunning(false);
-                    return;
-                }
+                // }
 
-            }, 1000)
-        )
+                setIsRunning(false);
+                return;
+            }
+
+        }, 1000)
+
+        setIntervalId(currentIntervalId)
+            
     }
 
 
