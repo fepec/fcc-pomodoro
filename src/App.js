@@ -7,17 +7,17 @@ import TimeLeftDisplay from './components/timeLeftDisplay'
 import AlarmSound from './assets/1s100hzSine.mp3'
 
 // defaults
-const defaultSessionTime = 25
-const defaultBreakTime = 5
+const defaultSessionTime = 25 * 60
+const defaultBreakTime = 5 * 60
 
 
 function App() {
     // state
-    let [sessionMinutes, setSessionMinutes] = useState(defaultSessionTime);
-    let [breakMinutes, setBreakMinutes] = useState(defaultBreakTime);
+    let [sessionSeconds, setSessionSeconds] = useState(defaultSessionTime);
+    let [breakSeconds, setBreakSeconds] = useState(defaultBreakTime);
     let [timerStatus, setTimerStatus] = useState('session');
     let [isRunning, setIsRunning] = useState(false)
-    let [timeLeft, setTimeLeft] = useState(sessionMinutes * 60) // set in seconds
+    let [timeLeft, setTimeLeft] = useState(sessionSeconds) 
     let endTime = useRef(null)
     let intervalRef = useRef(null);
     
@@ -26,15 +26,18 @@ function App() {
     // effects, used to manage timer and intervals
     function timer(durationSeconds) {
         endTime.current = Date.now() + durationSeconds * 1000;
-        setTimeLeft(durationSeconds);
+        // setTimeLeft(durationSeconds)
 
         intervalRef.current = setInterval(() => {
             const now = Date.now();
             const remainingSeconds = Math.round((endTime.current - now) / 1000);
-            console.log(isRunning, timeLeft, intervalRef.current, remainingSeconds)
+            
+            setTimeLeft(remainingSeconds)
 
-            if (remainingSeconds <= 0) {
+            if (remainingSeconds < 0) {
+                console.log("Clearing Interval", intervalRef.current, timeLeft)
                 clearInterval(intervalRef.current)
+                
 
                 const audio = document.getElementById('beep')
                 audio.currentTime = 0;
@@ -43,11 +46,11 @@ function App() {
 
                 if (timerStatus === 'session') {
                     setTimerStatus('break');
-                    setTimeLeft(breakMinutes * 60)
+                    setTimeLeft(breakSeconds)
                 } else {
                     setIsRunning(false)
                     setTimerStatus('session');
-                    setTimeLeft(sessionMinutes * 60)
+                    setTimeLeft(sessionSeconds)
 
                 }
 
@@ -62,14 +65,15 @@ function App() {
 
     useEffect(() => {
         console.log("Mounting interval, time left", timeLeft)
-        if (isRunning > 0) {
+        if (isRunning) {
             timer(timeLeft);
         } else {
+            console.log("Clearing Interval", intervalRef.current, timeLeft)
             clearInterval(intervalRef.current)
         }
 
         return () => {
-            console.log("Clearing Interval")
+            console.log("Clearing Interval", intervalRef.current, timeLeft)
             clearInterval(intervalRef.current); // Cleanup interval on component unmount
         }
     }, [isRunning, timerStatus]);
@@ -79,33 +83,34 @@ function App() {
     function handlePlusMinusClick(e) {
 
         if (e.target.id.includes('decrement')) {
-            if (e.target.id.includes('break') && breakMinutes > 1) {
-                setBreakMinutes(breakMinutes - 1)
-            } else if (e.target.id.includes('session') && sessionMinutes > 1) {
-                const newTime = sessionMinutes - 1
-                setSessionMinutes(newTime)
-                setTimeLeft(newTime * 60)
+            if (e.target.id.includes('break') && breakSeconds > 1 * 60) {
+                setBreakSeconds(breakSeconds - 60)
+            } else if (e.target.id.includes('session') && sessionSeconds > 1 * 60) {
+                const newTime = sessionSeconds - 60
+                setSessionSeconds(newTime)
+                setTimeLeft(newTime)
             }
         }
 
         if (e.target.id.includes('increment')) {
-            if (e.target.id.includes('break') && breakMinutes < 60) {
-                setBreakMinutes(breakMinutes + 1)
-            } else if (e.target.id.includes('session') && sessionMinutes < 60) {
-                const newTime = sessionMinutes + 1
-                setSessionMinutes(newTime)
-                setTimeLeft(newTime * 60)
+            if (e.target.id.includes('break') && breakSeconds < 60 * 60) {
+                setBreakSeconds(breakSeconds + 60)
+            } else if (e.target.id.includes('session') && sessionSeconds < 60 * 60) {
+                const newTime = sessionSeconds + 60
+                setSessionSeconds(newTime)
+                setTimeLeft(newTime)
             }
         }
     }
 
     function handleResetClick(e) {
+        console.log("Clearing Interval", intervalRef.current, timeLeft)
         clearInterval(intervalRef.current);
-        setBreakMinutes(defaultBreakTime);
-        setSessionMinutes(defaultSessionTime);
+        setBreakSeconds(defaultBreakTime);
+        setSessionSeconds(defaultSessionTime);
         setIsRunning(false);
         setTimerStatus('session');
-        setTimeLeft(defaultSessionTime * 60);
+        setTimeLeft(defaultSessionTime);
         const audio = document.getElementById('beep')
         audio.pause()
         audio.currentTime = 0;
@@ -116,7 +121,7 @@ function App() {
     function handleStartStopClick(e) {
 
         if (!isRunning) {
-            const seconds = timeLeft > 0 ? timeLeft : timerStatus == 'break' ? breakMinutes * 60 : sessionMinutes * 60;
+            const seconds = timeLeft >= 0 ? timeLeft : timerStatus == 'break' ? breakSeconds : sessionSeconds ;
             timer(seconds)
             setIsRunning(true);
         } else {
@@ -133,12 +138,12 @@ function App() {
 
             <TimeSetter controlType="break">
                 <AButton type="decrement" onButtonClick={handlePlusMinusClick} />
-                <LengthDisplay value={breakMinutes} />
+                <LengthDisplay value={breakSeconds / 60} />
                 <AButton type="increment" onButtonClick={handlePlusMinusClick} />
             </TimeSetter>
             <TimeSetter controlType="session">
                 <AButton type="decrement" onButtonClick={handlePlusMinusClick} />
-                <LengthDisplay value={sessionMinutes} />
+                <LengthDisplay value={sessionSeconds / 60} />
                 <AButton type="increment" onButtonClick={handlePlusMinusClick} />
             </TimeSetter>
         </div>
@@ -151,14 +156,6 @@ function App() {
             <button id='reset' className='control-button' onClick={handleResetClick}>{String.fromCharCode(0x000027F2)}</button>
         </div>
         <audio id='beep' src={AlarmSound} />
-        {/* <div className='devCheck'>
-            {`isRunning: ${isRunning}`} <br />
-            {`timeLeft: ${timeLeft}`} <br />
-            {`intervalRef: ${intervalRef.current}`} <br />
-            {`sessionMinutes: ${sessionMinutes}`} <br />
-            {`breakMinutes: ${breakMinutes}`} <br />
-            {`timerStatus: ${timerStatus}`} <br />
-        </div> */}
     </div>
 }
 
