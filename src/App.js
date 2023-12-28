@@ -19,7 +19,6 @@ function App() {
     let [timerStatus, setTimerStatus] = useState('ready');
     let [isRunning, setIsRunning] = useState(false);
     let [timeLeft, setTimeLeft] = useState(sessionMinutes * 60) // set in seconds
-    let [startStopStatus, setStartStopStatus] = useState('start');
     let intervalRef = useRef(null);
 
     // effects, used to manage timer and intervals
