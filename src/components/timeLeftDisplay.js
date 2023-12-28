@@ -4,5 +4,5 @@ export default function TimeLeftDisplay({timeToDisplay}) {
     let minutes = Math.floor(timeToDisplay / 60)
     let seconds = timeToDisplay % 60
 
-    return <div className="timer-display" id='time-left'>{minutes}:{seconds < 10 ? '0' + seconds : seconds}</div>
+    return <div id='time-left' className="timer-display">{minutes}:{seconds < 10 ? '0' + seconds : seconds}</div>
 }

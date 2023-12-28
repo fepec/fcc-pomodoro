@@ -10,7 +10,6 @@ import AlarmSound from './assets/1s100hzSine.mp3'
 const defaultSessionTime = 25
 const defaultBreakTime = 5
 
-let ueCalls = 0
 
 function App() {
     // state
@@ -21,6 +20,8 @@ function App() {
     let [timeLeft, setTimeLeft] = useState(sessionMinutes * 60) // set in seconds
     let endTime = useRef(null)
     let intervalRef = useRef(null);
+    
+
 
     // effects, used to manage timer and intervals
     function timer(durationSeconds) {
@@ -78,9 +79,9 @@ function App() {
     function handlePlusMinusClick(e) {
 
         if (e.target.id.includes('decrement')) {
-            if (e.target.id.includes('break') && breakMinutes > 0) {
+            if (e.target.id.includes('break') && breakMinutes > 1) {
                 setBreakMinutes(breakMinutes - 1)
-            } else if (e.target.id.includes('session') && sessionMinutes > 0) {
+            } else if (e.target.id.includes('session') && sessionMinutes > 1) {
                 const newTime = sessionMinutes - 1
                 setSessionMinutes(newTime)
                 setTimeLeft(newTime * 60)
@@ -88,9 +89,9 @@ function App() {
         }
 
         if (e.target.id.includes('increment')) {
-            if (e.target.id.includes('break')) {
+            if (e.target.id.includes('break') && breakMinutes < 60) {
                 setBreakMinutes(breakMinutes + 1)
-            } else if (e.target.id.includes('session')) {
+            } else if (e.target.id.includes('session') && sessionMinutes < 60) {
                 const newTime = sessionMinutes + 1
                 setSessionMinutes(newTime)
                 setTimeLeft(newTime * 60)
@@ -105,6 +106,10 @@ function App() {
         setIsRunning(false);
         setTimerStatus('session');
         setTimeLeft(defaultSessionTime * 60);
+        const audio = document.getElementById('beep')
+        audio.pause()
+        audio.currentTime = 0;
+        
 
     }
 
@@ -142,7 +147,7 @@ function App() {
             <TimeLeftDisplay timeToDisplay={timeLeft} />
         </div>
         <div className='timer-controls'>
-            <button id='start-stop' className='control-button' onClick={handleStartStopClick}>{!isRunning ? String.fromCharCode(0x23F5) : String.fromCharCode(0x23F9)}</button>
+            <button id="start_stop" className='control-button' onClick={handleStartStopClick}>{!isRunning ? String.fromCharCode(0x23F5) : String.fromCharCode(0x23F9)}</button>
             <button id='reset' className='control-button' onClick={handleResetClick}>{String.fromCharCode(0x000027F2)}</button>
         </div>
         <audio id='beep' src={AlarmSound} />
