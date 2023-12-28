@@ -7,21 +7,71 @@ import TimeLeftDisplay from './components/timeLeftDisplay'
 import AlarmSound from './assets/1s100hzSine.mp3'
 
 // defaults
-const defaultSessionTime = 0.25
+const defaultSessionTime = 25
 const defaultBreakTime = 5
 
-
+let ueCalls = 0
 
 function App() {
     // state
     let [sessionMinutes, setSessionMinutes] = useState(defaultSessionTime);
     let [breakMinutes, setBreakMinutes] = useState(defaultBreakTime);
-    let [timerStatus, setTimerStatus] = useState('ready');
-    let [isRunning, setIsRunning] = useState(false);
+    let [timerStatus, setTimerStatus] = useState('session');
+    let [isRunning, setIsRunning] = useState(false)
     let [timeLeft, setTimeLeft] = useState(sessionMinutes * 60) // set in seconds
+    let endTime = useRef(null)
     let intervalRef = useRef(null);
 
     // effects, used to manage timer and intervals
+    function timer(durationSeconds) {
+        endTime.current = Date.now() + durationSeconds * 1000;
+        setTimeLeft(durationSeconds);
+
+        intervalRef.current = setInterval(() => {
+            const now = Date.now();
+            const remainingSeconds = Math.round((endTime.current - now) / 1000);
+            console.log(isRunning, timeLeft, intervalRef.current, remainingSeconds)
+
+            if (remainingSeconds <= 0) {
+                clearInterval(intervalRef.current)
+
+                const audio = document.getElementById('beep')
+                audio.currentTime = 0;
+                audio.play().catch((err) => console.log(err))
+
+
+                if (timerStatus === 'session') {
+                    setTimerStatus('break');
+                    setTimeLeft(breakMinutes * 60)
+                } else {
+                    setIsRunning(false)
+                    setTimerStatus('session');
+                    setTimeLeft(sessionMinutes * 60)
+
+                }
+
+            } else {
+                setTimeLeft(remainingSeconds);
+            }
+
+        }, 1000);
+
+    }
+
+
+    useEffect(() => {
+        console.log("Mounting interval, time left", timeLeft)
+        if (isRunning > 0) {
+            timer(timeLeft);
+        } else {
+            clearInterval(intervalRef.current)
+        }
+
+        return () => {
+            console.log("Clearing Interval")
+            clearInterval(intervalRef.current); // Cleanup interval on component unmount
+        }
+    }, [isRunning, timerStatus]);
 
 
     // event handlers
@@ -52,73 +102,24 @@ function App() {
         clearInterval(intervalRef.current);
         setBreakMinutes(defaultBreakTime);
         setSessionMinutes(defaultSessionTime);
-        setTimerStatus('ready');
+        setIsRunning(false);
+        setTimerStatus('session');
         setTimeLeft(defaultSessionTime * 60);
-        setStartStopStatus('start')
+
     }
 
     function handleStartStopClick(e) {
-        console.log(isRunning, timeLeft)
 
         if (!isRunning) {
-            // let seconds;
-            // if (timeLeft > 0) {
-            //     seconds = timeLeft;
-            // } else {
-            //     if (timerStatus === 'break') {
-            //         seconds = breakMinutes * 60
-            //     }
-            // }
-            if (timerStatus === 'ready') {
-                setTimerStatus('session')
-            }
             const seconds = timeLeft > 0 ? timeLeft : timerStatus == 'break' ? breakMinutes * 60 : sessionMinutes * 60;
-            timer(seconds);
-
-            setStartStopStatus('stop')
+            timer(seconds)
             setIsRunning(true);
         } else {
-
-            clearInterval(intervalRef.current);
-
-            setStartStopStatus('start')
             setIsRunning(false);
         }
     }
 
 
-
-    // timer function
-    function timer(seconds) {
-        clearInterval(intervalRef.current);
-        const now = Date.now();
-        const then = now + seconds * 1000;
-
-        let remainingSeconds = seconds;
-        intervalRef.current = setInterval(() => {
-            remainingSeconds = Math.round((then - Date.now()) / 1000)
-            setTimeLeft(remainingSeconds);
-
-            if (remainingSeconds <= 0) {
-                clearInterval(intervalRef.current);
-                const audio = document.getElementById('beep')
-                audio.currentTime = 0;
-                audio.play().catch((err) => console.log(err))
-                // play sound
-                // if session, switch to break and start there.
-                if (timerStatus === 'session') {
-                    setTimerStatus('break')
-                    timer(breakMinutes * 60)
-
-                }
-
-                setIsRunning(false);
-                return;
-            }
-
-        }, 1000)
-
-    }
 
 
     return <div className='pomodoro-timer'>
@@ -145,6 +146,14 @@ function App() {
             <button id='reset' className='control-button' onClick={handleResetClick}>{String.fromCharCode(0x000027F2)}</button>
         </div>
         <audio id='beep' src={AlarmSound} />
+        {/* <div className='devCheck'>
+            {`isRunning: ${isRunning}`} <br />
+            {`timeLeft: ${timeLeft}`} <br />
+            {`intervalRef: ${intervalRef.current}`} <br />
+            {`sessionMinutes: ${sessionMinutes}`} <br />
+            {`breakMinutes: ${breakMinutes}`} <br />
+            {`timerStatus: ${timerStatus}`} <br />
+        </div> */}
     </div>
 }
 
