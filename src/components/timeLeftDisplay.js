@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function CountdownTimer({timeToDisplay}) {
+export default function TimeLeftDisplay({timeToDisplay}) {
     let minutes = Math.floor(timeToDisplay / 60)
     let seconds = timeToDisplay % 60
 

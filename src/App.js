@@ -3,7 +3,7 @@ import TimeSetter from './components/timeSetter'
 import AButton from './components/aButton'
 import LengthDisplay from './components/lengthDisplay'
 import StatusDisplay from './components/statusDisplay'
-import CountdownTimer from './components/countdownTimer'
+import TimeLeftDisplay from './components/timeLeftDisplay'
 import AlarmSound from './assets/1s100hzSine.mp3'
 
 // defaults
@@ -70,18 +70,18 @@ function App() {
             //         seconds = breakMinutes * 60
             //     }
             // }
-            if(timerStatus === 'ready') {
+            if (timerStatus === 'ready') {
                 setTimerStatus('session')
             }
             const seconds = timeLeft > 0 ? timeLeft : timerStatus == 'break' ? breakMinutes * 60 : sessionMinutes * 60;
             timer(seconds);
-            
+
             setStartStopStatus('stop')
             setIsRunning(true);
         } else {
-        
+
             clearInterval(intervalRef.current);
-            
+
             setStartStopStatus('start')
             setIsRunning(false);
         }
@@ -94,7 +94,7 @@ function App() {
         clearInterval(intervalRef.current);
         const now = Date.now();
         const then = now + seconds * 1000;
-        
+
         let remainingSeconds = seconds;
         intervalRef.current = setInterval(() => {
             remainingSeconds = Math.round((then - Date.now()) / 1000)
@@ -104,7 +104,7 @@ function App() {
                 clearInterval(intervalRef.current);
                 const audio = document.getElementById('beep')
                 audio.currentTime = 0;
-                 audio.play().catch((err) => console.log(err))
+                audio.play().catch((err) => console.log(err))
                 // play sound
                 // if session, switch to break and start there.
                 if (timerStatus === 'session') {
@@ -118,7 +118,7 @@ function App() {
             }
 
         }, 1000)
-            
+
     }
 
 
@@ -139,11 +139,11 @@ function App() {
         </div>
         <div className='main-display'>
             <StatusDisplay status={timerStatus} />
-            <CountdownTimer timeToDisplay={timeLeft} />
+            <TimeLeftDisplay timeToDisplay={timeLeft} />
         </div>
         <div className='timer-controls'>
-            <AButton type='start-stop' control={startStopStatus} onButtonClick={handleStartStopClick} />
-            <AButton type='reset' onButtonClick={handleResetClick} />
+            <button id='start-stop' className='control-button' onClick={handleStartStopClick}>{!isRunning ? String.fromCharCode(0x23F5) : String.fromCharCode(0x23F9)}</button>
+            <button id='reset' className='control-button' onClick={handleResetClick}>{String.fromCharCode(0x000027F2)}</button>
         </div>
         <audio id='beep' src={AlarmSound} />
     </div>
