@@ -1,13 +1,16 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import TimeSetter from './components/timeSetter'
 import AButton from './components/aButton'
 import LengthDisplay from './components/lengthDisplay'
 import StatusDisplay from './components/statusDisplay'
 import CountdownTimer from './components/countdownTimer'
+import AlarmSound from './assets/1s100hzSine.mp3'
 
 // defaults
 const defaultSessionTime = 0.25
 const defaultBreakTime = 5
+
+
 
 function App() {
     // state
@@ -17,7 +20,10 @@ function App() {
     let [isRunning, setIsRunning] = useState(false);
     let [timeLeft, setTimeLeft] = useState(sessionMinutes * 60) // set in seconds
     let [startStopStatus, setStartStopStatus] = useState('start');
-    let [intervalId, setIntervalId] = useState();
+    let intervalRef = useRef(null);
+
+    // effects, used to manage timer and intervals
+
 
     // event handlers
     function handlePlusMinusClick(e) {
@@ -44,11 +50,12 @@ function App() {
     }
 
     function handleResetClick(e) {
-        clearInterval(intervalId);
+        clearInterval(intervalRef.current);
         setBreakMinutes(defaultBreakTime);
         setSessionMinutes(defaultSessionTime);
         setTimerStatus('ready');
         setTimeLeft(defaultSessionTime * 60);
+        setStartStopStatus('start')
     }
 
     function handleStartStopClick(e) {
@@ -73,7 +80,7 @@ function App() {
             setIsRunning(true);
         } else {
         
-            clearInterval(intervalId);
+            clearInterval(intervalRef.current);
             
             setStartStopStatus('start')
             setIsRunning(false);
@@ -84,33 +91,33 @@ function App() {
 
     // timer function
     function timer(seconds) {
-        clearInterval(intervalId);
+        clearInterval(intervalRef.current);
         const now = Date.now();
         const then = now + seconds * 1000;
         
         let remainingSeconds = seconds;
-        let currentIntervalId = setInterval(() => {
+        intervalRef.current = setInterval(() => {
             remainingSeconds = Math.round((then - Date.now()) / 1000)
             setTimeLeft(remainingSeconds);
 
             if (remainingSeconds <= 0) {
-                clearInterval(currentIntervalId);
-
+                clearInterval(intervalRef.current);
+                const audio = document.getElementById('beep')
+                audio.currentTime = 0;
+                 audio.play().catch((err) => console.log(err))
                 // play sound
                 // if session, switch to break and start there.
-                // if (timerStatus === 'session') {
-                //     setTimerStatus('break')
-                //     timer(breakMinutes * 60)
+                if (timerStatus === 'session') {
+                    setTimerStatus('break')
+                    timer(breakMinutes * 60)
 
-                // }
+                }
 
                 setIsRunning(false);
                 return;
             }
 
         }, 1000)
-
-        setIntervalId(currentIntervalId)
             
     }
 
@@ -138,6 +145,7 @@ function App() {
             <AButton type='start-stop' control={startStopStatus} onButtonClick={handleStartStopClick} />
             <AButton type='reset' onButtonClick={handleResetClick} />
         </div>
+        <audio id='beep' src={AlarmSound} />
     </div>
 }
 

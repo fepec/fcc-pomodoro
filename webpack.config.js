@@ -48,6 +48,10 @@ module.exports = {
             loader: 'sass-loader'
           }
         ]
+      },
+      {
+        test: /\.mp3$/,
+        loader: 'file-loader'
       }
     ],
   },
